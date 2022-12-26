@@ -1,0 +1,15 @@
+defaults:
+  - _self_
+  - dataset: mnist.yaml
+  - model: lenet5.yaml
+  - transform: default_transforms.yaml
+
+save_path: model/
+cuda: True
+seed: null
+batch_size: 128
+epochs: 50
+
+hydra:
+  job:
+    chdir: True

@@ -1,0 +1,18 @@
+train:
+  resize:
+    _target_: torchvision.transforms.Resize
+    size: [32, 32]
+  # to_grayscale:
+  #   _target_: torchvision.transforms.Grayscale
+  #   num_output_channels: 1
+  # random_rotation:
+  #   _target_: torchvision.transforms.RandomRotation
+  #   degrees: 45
+  to_tensor:
+    _target_: torchvision.transforms.ToTensor
+
+test:
+  resize: ${..train.resize}
+  # to_grayscale: ${..train.to_grayscale}
+  to_tensor: ${..train.to_tensor}
+

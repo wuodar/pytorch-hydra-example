@@ -1,0 +1,4 @@
+num_classes: 10
+dataset:
+  _target_: torchvision.datasets.CIFAR10
+  root: ${hydra:runtime.cwd}/datasets/

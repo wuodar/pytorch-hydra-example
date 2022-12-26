@@ -1,0 +1,15 @@
+optimizer:
+  _target_: torch.optim.SGD
+  lr: 0.01
+  weight_decay: 0.0001
+  momentum: 0.9
+
+criterion:
+  _target_: torch.nn.CrossEntropyLoss
+
+metric:
+  _target_: torchmetrics.Accuracy
+  task: multiclass
+
+net:
+  _target_: src.models.lenet5.LeNet5

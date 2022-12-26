@@ -13,6 +13,6 @@ train:
 
 test:
   resize: ${..train.resize}
-  # to_grayscale: ${..train.to_grayscale}
+  to_grayscale: ${..train.to_grayscale}
   to_tensor: ${..train.to_tensor}
 

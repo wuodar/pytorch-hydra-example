@@ -28,34 +28,41 @@ def train(
     metric = metric.to(device)
 
     for epoch in range(epochs):
+        model.train()
         for batch_X, batch_y in train_dataloader:
-            optimizer.zero_grad()
             batch_X, batch_y = batch_X.to(device), batch_y.to(device)
 
-            predictions = model(batch_X)
-            loss = criterion(predictions, batch_y)
+            outputs = model(batch_X)
+            loss = criterion(outputs, batch_y)
 
+            _, predictions = torch.max(outputs, 1)
+
+            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            metric.update(predictions.max(1)[1], batch_y)
+            metric.update(predictions, batch_y)
 
         print(
             f"Epoch {epoch}, results on train dataset: "
-            f"{loss.detach().cpu().numpy():.6f}, {metric.compute().cpu().numpy():.6f}"
+            f"Loss: {loss.item():.6f}, {metric.__class__.__name__}: {metric.compute().item():.6f}"
         )
         metric.reset()
+        model.eval()
 
-        for batch_X, batch_y in test_dataloader:
-            batch_X, batch_y = batch_X.to(device), batch_y.to(device)
+        with torch.inference_mode():
+            for batch_X, batch_y in test_dataloader:
+                batch_X, batch_y = batch_X.to(device), batch_y.to(device)
 
-            predictions = model(batch_X)
-            loss = criterion(predictions, batch_y)
-            metric.update(predictions.max(1)[1], batch_y)
+                outputs = model(batch_X)
+                loss = criterion(outputs, batch_y)
+                _, predictions = torch.max(outputs, 1)
 
-        print(
-            f"Epoch {epoch}, results on test dataset: "
-            f"{loss.detach().cpu().numpy():.6f}, {metric.compute().cpu().numpy():.6f}"
-        )
+                metric.update(predictions, batch_y)
+
+            print(
+                f"Epoch {epoch}, results on test dataset: "
+                f"Loss: {loss.item():.6f}, {metric.__class__.__name__}: {metric.compute().item():.6f}"
+            )
         metric.reset()
 
     ckpt = {"model": model, "optimizer": optimizer.state_dict()}
@@ -65,8 +72,8 @@ def train(
 def _get_transform(augs: DictConfig) -> transforms.Compose:
     augmentations: list[nn.Module] = []
     if augs:
-        for augmentation_cfg in augs.values():
-            augmentations.append(hydra.utils.instantiate(augmentation_cfg))
+        augmentations.extend(hydra.utils.instantiate(augmentation_cfg) for augmentation_cfg in augs.values())
+
     return transforms.Compose(augmentations)
 
 
@@ -94,7 +101,6 @@ def main(cfg: DictConfig):
     metric: torchmetrics.Metric = hydra.utils.instantiate(cfg.model.metric, num_classes=num_classes)
     optimizer: optim.Optimizer = hydra.utils.instantiate(cfg.model.optimizer, params=model.parameters())
     criterion: nn.Module = hydra.utils.instantiate(cfg.model.criterion)
-
 
     ckpt_save_path = Path(cfg.save_path) / "checkpoint.pt"
     ckpt_save_path.parent.mkdir(parents=True, exist_ok=True)

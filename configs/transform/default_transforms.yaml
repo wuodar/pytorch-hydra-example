@@ -2,9 +2,9 @@ train:
   resize:
     _target_: torchvision.transforms.Resize
     size: [32, 32]
-  # to_grayscale:
-  #   _target_: torchvision.transforms.Grayscale
-  #   num_output_channels: 1
+  to_grayscale:
+    _target_: torchvision.transforms.Grayscale
+    num_output_channels: 1
   # random_rotation:
   #   _target_: torchvision.transforms.RandomRotation
   #   degrees: 45

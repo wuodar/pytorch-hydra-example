@@ -1,7 +1,7 @@
 # Hydra example
 This repository acts as an example ML project that utilizes hydra configuration.
 Hydra provides yaml-based, hierarchical configuration with compositions and overrides built-in.
-`configs/` directory contains grouped configs for the code used in `src/` directory. 
+`configs/` directory contains grouped configs for the code used in `src/` directory. You can modify, or add new configs based on your needs.
 
 Key features:
 

@@ -1,0 +1,17 @@
+train:
+  _target_: torchvision.transforms.Compose
+  transforms:
+    - _target_: torchvision.transforms.Resize
+      size: [32, 32]
+    - _target_: torchvision.transforms.Grayscale
+      num_output_channels: 1
+    - _target_: torchvision.transforms.ToTensor
+
+test: 
+  _target_: torchvision.transforms.Compose
+  transforms:
+    - _target_: torchvision.transforms.Resize
+      size: [32, 32]
+    - _target_: torchvision.transforms.Grayscale
+      num_output_channels: 1
+    - _target_: torchvision.transforms.ToTensor

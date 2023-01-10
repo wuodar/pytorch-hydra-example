@@ -2,7 +2,7 @@ defaults:
   - _self_
   - dataset: mnist.yaml
   - model: lenet5.yaml
-  - transform: default_transforms.yaml
+  - transform: albumentations.yaml
 
 save_path: model/
 cuda: True

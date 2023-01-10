@@ -1,15 +1,18 @@
 from pathlib import Path
 import random
 
+import albumentations as A
 import hydra
 from omegaconf import DictConfig
 import numpy as np
 import torch
 from torch import nn
 from torch import optim
-from torchvision import datasets, transforms
+from torchvision import datasets
 from torch.utils.data import DataLoader
 import torchmetrics
+
+from src.utils.transforms import AlbumentationsTransforms
 
 
 def train(
@@ -31,7 +34,6 @@ def train(
         model.train()
         for batch_X, batch_y in train_dataloader:
             batch_X, batch_y = batch_X.to(device), batch_y.to(device)
-
             outputs = model(batch_X)
             loss = criterion(outputs, batch_y)
 
@@ -69,12 +71,14 @@ def train(
     torch.save(ckpt, ckpt_save_path)
 
 
-def _get_transform(augs: DictConfig) -> transforms.Compose:
-    augmentations: list[nn.Module] = []
-    if augs:
-        augmentations.extend(hydra.utils.instantiate(augmentation_cfg) for augmentation_cfg in augs.values())
-
-    return transforms.Compose(augmentations)
+def _get_transforms(cfg: DictConfig):
+    train_transform = hydra.utils.instantiate(cfg.transform.train)
+    test_transform = hydra.utils.instantiate(cfg.transform.test)
+    if isinstance(train_transform, A.Compose):
+        train_transform = AlbumentationsTransforms(train_transform)
+    if isinstance(test_transform, A.Compose):
+        test_transform = AlbumentationsTransforms(test_transform)
+    return train_transform, test_transform
 
 
 @hydra.main(version_base="1.3", config_path="../configs", config_name="train.yaml")
@@ -84,13 +88,12 @@ def main(cfg: DictConfig):
         random.seed(cfg.seed)
         torch.manual_seed(cfg.seed)
 
-    train_transform = _get_transform(cfg.transform.train)
+    train_transform, test_transform = _get_transforms(cfg)
     train_dataset: datasets.VisionDataset = hydra.utils.instantiate(
         cfg.dataset.dataset, transform=train_transform, train=True, download=True
     )
     train_dataloader = DataLoader(train_dataset, batch_size=cfg.batch_size)
 
-    test_transform = _get_transform(cfg.transform.test)
     test_dataset: datasets.VisionDataset = hydra.utils.instantiate(
         cfg.dataset.dataset, transform=test_transform, train=False, download=True
     )

@@ -1,0 +1,25 @@
+train:
+  _target_: albumentations.Compose
+  transforms:
+    - _target_: albumentations.Resize
+      height: 32
+      width: 32
+      always_apply: True
+    - _target_: albumentations.ToGray
+      always_apply: True
+    - _target_: albumentations.ToFloat
+      always_apply: True
+    - _target_: albumentations.pytorch.ToTensorV2
+
+test: 
+  _target_: albumentations.Compose
+  transforms:
+    - _target_: albumentations.Resize
+      height: 32
+      width: 32
+      always_apply: True
+    - _target_: albumentations.ToGray
+      always_apply: True
+    - _target_: albumentations.ToFloat
+      always_apply: True
+    - _target_: albumentations.pytorch.ToTensorV2

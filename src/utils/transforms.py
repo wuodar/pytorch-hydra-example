@@ -4,7 +4,7 @@ import torchvision
 
 
 class AlbumentationsTransforms:
-    def __init__(self, transforms: A.Compose):
+    def __init__(self, transforms: A.BaseCompose):
         self.transforms = transforms
         # Torch expect grayscale image to be single dimension, but augmentations returns 3 channel image
         self._to_gray = A.ToGray in [type(t) for t in transforms.transforms]

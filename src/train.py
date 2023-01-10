@@ -74,9 +74,9 @@ def train(
 def _get_transforms(cfg: DictConfig):
     train_transform = hydra.utils.instantiate(cfg.transform.train)
     test_transform = hydra.utils.instantiate(cfg.transform.test)
-    if isinstance(train_transform, A.Compose):
+    if isinstance(train_transform, A.BaseCompose):
         train_transform = AlbumentationsTransforms(train_transform)
-    if isinstance(test_transform, A.Compose):
+    if isinstance(test_transform, A.BaseCompose):
         test_transform = AlbumentationsTransforms(test_transform)
     return train_transform, test_transform
 
